@@ -22,6 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install .
 
       - name: Security scan
         run: bandit -r . --exclude ./test
@@ -32,12 +33,9 @@ jobs:
           pytest
 
   trigger-python-service:
-    name: Trigger python-service pipeline
     needs: build-test
     runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
+    if: success() && github.ref == 'refs/heads/main'
     steps:
       - name: Dispatch event to python-service
         uses: peter-evans/repository-dispatch@v2
@@ -45,9 +43,3 @@ jobs:
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           repository: Shinta-C-Zachariah/python-service
           event-type: python-lib-updated
-          client-payload: |
-            {
-              "library": "python-lib",
-              "branch": "main",
-              "commit": "${{ github.sha }}"
-            }
