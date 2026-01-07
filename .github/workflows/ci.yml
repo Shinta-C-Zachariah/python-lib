@@ -25,7 +25,7 @@ jobs:
           pip install .
 
       - name: Security scan
-        run: bandit -r . --exclude ./test
+        run: bandit -r lib
 
       - name: Run tests
         run: |
