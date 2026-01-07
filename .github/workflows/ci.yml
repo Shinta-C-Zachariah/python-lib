@@ -31,3 +31,23 @@ jobs:
           export PYTHONPATH=$PWD
           pytest
 
+  trigger-python-service:
+    name: Trigger python-service pipeline
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Dispatch event to python-service
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: Shinta-C-Zachariah/python-service
+          event-type: python-lib-updated
+          client-payload: |
+            {
+              "library": "python-lib",
+              "branch": "main",
+              "commit": "${{ github.sha }}"
+            }
